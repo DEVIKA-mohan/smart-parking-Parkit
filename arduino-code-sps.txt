@@ -1,0 +1,125 @@
+#include <SoftwareSerial.h>
+
+#include <Firebase.h>
+#include <FirebaseArduino.h>
+#include <FirebaseCloudMessaging.h>
+#include <FirebaseError.h>
+#include <FirebaseHttpClient.h>
+#include <FirebaseObject.h>
+
+#include <ArduinoJson.h>
+#include <ESP8266WiFi.h>  
+
+
+
+#define FIREBASE_HOST "smart-parking-system-5ebbb.firebaseio.com"
+#define FIREBASE_AUTH "Gab2eKcIlk1r9trNoxMKoPfNphlDcjS2lPlGfV7F"
+
+
+
+float duration1;
+float duration2;
+float distance1;
+float distance2;
+int led=5;
+int led2=4;
+char ssid[] = "ABCD";
+char pass[] = "********";
+int slot1=0;
+String stringval;
+String val2;
+void setup() {
+  
+  pinMode(D7,INPUT);
+  pinMode(D4, OUTPUT);
+  pinMode(D1,OUTPUT);
+  
+    pinMode(D5,INPUT);
+  pinMode(D8, OUTPUT);
+  pinMode(led2,OUTPUT);
+  pinMode(D6,OUTPUT);
+ 
+ Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+ Serial.begin(115200);   
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+        
+        
+        digitalWrite(D4, LOW);    //sets trigger pin low
+       
+        delayMicroseconds(2);       // gives delay of 2us before setting trigger pin high
+        
+        digitalWrite(D4, HIGH);   // sets trigger pin high
+        
+        delayMicroseconds(10);      // keep trigger pin high for 10us
+        
+        digitalWrite(D4, LOW);
+
+         duration1 = pulseIn(D7, HIGH);       // this function says to count the time from one 
+                                              // high of echo pin to successive high of same once
+                                              // it gets the pulse signal
+         distance1 = duration1*0.034/2;
+        Serial.print("sensor 1-");
+         Serial.println(distance1);
+         
+delay(500);
+        if(distance1>6)
+        {
+          digitalWrite(D6,HIGH);
+          digitalWrite(led,LOW);
+          Serial.print("led state ");
+          Serial.println(digitalRead(D1));
+          delay(1000);
+        }
+        else
+        {
+        digitalWrite(D6,LOW);
+        digitalWrite(led,HIGH);
+        delay(500);
+        }
+        
+        slot1=digitalRead(D1);
+        Serial.print("led1-");
+        Serial.println(led);
+        stringval=String(slot1);
+       
+
+        digitalWrite(D8, LOW);    //sets trigger pin low
+       
+        delayMicroseconds(2);       // gives delay of 2us before setting trigger pin high
+        
+        digitalWrite(D8, HIGH);   // sets trigger pin high
+        
+        delayMicroseconds(10);      // keep trigger pin high for 10us
+        
+        digitalWrite(D8, LOW);
+        
+        
+        
+        duration2 = pulseIn(D5, HIGH);       // this function says to count the time from one 
+                                              // high of echo pin to successive high of same once
+                                              // it gets the pulse signal
+         distance2 = duration2*0.034/2;
+      //  Serial.print("sensor 2 -");
+       //  Serial.println(distance2);
+
+delay(500);
+ if(distance2>20)
+        {
+          digitalWrite(led2,HIGH);
+          Serial.print("led state2 ");
+          Serial.println(digitalRead(led2));
+          delay(1000);
+        }
+        else{
+        digitalWrite(led2,LOW);
+        Serial.print("led state2 ");
+          Serial.println(digitalRead(led2));}
+        delay(500);
+delay(500);
+ Firebase.setString("slot 1",stringval);
+delay(1000);
+     
+}
